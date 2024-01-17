@@ -1,0 +1,11 @@
+Run the following commands to setup the dependencies for the repo
+
+>>> sudo apt install python3
+>>> sudo apt install python3-pip -y
+>>> sudo apt-get install python3-venv -y
+
+Create a virtual environment 
+>>> python3 -m venv venv
+
+Activate the virtual environment
+>>> source venv/bin/activate
