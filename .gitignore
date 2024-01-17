@@ -1,1 +1,3 @@
 venv/
+species_classification/images/*
+!species_classification/images/.gitkeep

@@ -1,11 +1,23 @@
 Run the following commands to setup the dependencies for the repo
 
+>>> sudo apt update
+>>> sudo apt upgrade
 >>> sudo apt install python3
 >>> sudo apt install python3-pip -y
 >>> sudo apt-get install python3-venv -y
+>>> sudo apt install python3-picamera2 -y
+>>> sudo apt install python3-pyqt5 python3-opengl -y
 
 Create a virtual environment 
 >>> python3 -m venv venv
 
 Activate the virtual environment
 >>> source venv/bin/activate
+
+Install the pip dependencies
+>>> pip install -r requirements.txt
+
+Notes:
+- Make sure to activate the virtual environment before installing a new pip dependency
+- Add the command for the dependency installation to the requirements.txt file
+- Setup instructions are for a debian-based linux distribution
