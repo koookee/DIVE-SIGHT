@@ -16,6 +16,6 @@ picam2.start()
 time.sleep(3)
 
 for i in range(0, 10):
-    picam2.capture_file(f"images/image{i}.jpg")
+    picam2.capture_file(f"captured_images/image{i}.jpg")
     print(f"Captured image {i}")
     time.sleep(1)

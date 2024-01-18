@@ -21,3 +21,5 @@ Notes:
 - Make sure to activate the virtual environment before installing a new pip dependency
 - Add the command for the dependency installation to the requirements.txt file
 - Setup instructions are for a debian-based linux distribution
+- If the tensorflow dependency in requirements.txt fails to install due to memory issues,
+  manually run "pip install tensorflow==2.15.0 --no-cache-dir" from the terminal
