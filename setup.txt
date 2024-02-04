@@ -9,7 +9,7 @@ Run the following commands to setup the dependencies for the repo
 >>> sudo apt install python3-pyqt5 python3-opengl -y
 
 Create a virtual environment 
->>> python3 -m venv venv
+>>> python3 -m venv venv --system-site-packages
 
 Activate the virtual environment
 >>> source venv/bin/activate
