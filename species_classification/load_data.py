@@ -12,7 +12,7 @@ training_data = []
 testing_data = []
 input_data = []
 
-IMG_SIZE = 100
+IMG_SIZE = 150
 
 def convertToRGB(img_arr):
     return cv2.cvtColor(img_arr, cv2.COLOR_BGR2RGB)

@@ -19,6 +19,7 @@ Install the pip dependencies
 
 Notes:
 - Make sure to activate the virtual environment before installing a new pip dependency
+- Make sure to cd into species_classification before running the training and classification scripts. You'll get a path error otherwise.
 - Add the command for the dependency installation to the requirements.txt file
 - Setup instructions are for a debian-based linux distribution
 - If the tensorflow dependency in requirements.txt fails to install due to memory issues,
