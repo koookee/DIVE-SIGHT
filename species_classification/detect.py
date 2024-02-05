@@ -3,7 +3,7 @@ import os
 import matplotlib.pyplot as plt
 import cv2
 import time
-from image_capture import setup, take_picture
+from image_capture import setup, take_picture, picam2
 
 # Pre-trained model obtained from https://github.com/JeremyFJ/Shark-Detector
 model = tf.saved_model.load('SL_modelv3')
@@ -21,7 +21,7 @@ def analyze_image(image_np, threshold):
   scores = detections['detection_scores']
   confidence = scores[0]
   
-  print(f"Confidence score: {confidence}")
+  print(f"Confidence score that it's a shark: {confidence}")
   return confidence
 
 def analyze_test_images():
@@ -46,13 +46,11 @@ def analyze_captured_input():
         threshold = 0.9 # threshold to determine whether image contains a shark or not -- adjust this based on sensitivity
         confidence = analyze_image(img, threshold)
         if confidence > threshold:
-            print(f"{img_name} is a shark")
+            print(f"{image_name} is a shark")
         else:
-            print(f"{img_name} is not a shark")
+            print(f"{image_name} is not a shark")
         print("-----------------------------------------")
-        plt.imshow(img)
-        plt.show()
-        time.sleep(10)
+        time.sleep(5)
 
 setup()
 analyze_captured_input()

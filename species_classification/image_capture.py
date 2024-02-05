@@ -2,8 +2,9 @@ from picamera2 import Picamera2, Preview
 import time
 import sys
 
+picam2 = Picamera2()
+
 def setup():
-    picam2 = Picamera2()
     camera_config = picam2.create_preview_configuration()
     picam2.configure(camera_config)
     picam2.options["quality"] = 95 # Sets the image quality to the highest value
@@ -20,5 +21,3 @@ def take_picture():
     picam2.capture_file(f"captured_images/image{epoch_time}.jpg")
     print(f"Captured image {epoch_time}")
     return f"image{epoch_time}.jpg"
-
-# setup()
