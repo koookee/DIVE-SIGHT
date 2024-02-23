@@ -247,9 +247,10 @@ class HeartRateMonitor(object):
         bpm_low = []
         o2_high = []
         o2_low = []
-
-        # Run until told to stop.
-        while not self._thread.stopped:
+        
+        timeout = time.time() + 15
+        # Run until told to stop
+        while True:
             num_bytes = sensor.get_data_present()
             if num_bytes > 0:
                 # Put all data into arrays.
@@ -264,8 +265,6 @@ class HeartRateMonitor(object):
                         sleep(3)
                         oled.draw.rectangle( [(0,0), (128, 32)], fill=0)
                         
-                        #print("{0}, {1}".format(ir, red), file=open('/home/rayah/Documents/health.txt', 'a'))
-
                 while len(ir_data) > 100:
                     ir_data.pop(0)
                     red_data.pop(0)
@@ -334,16 +333,9 @@ class HeartRateMonitor(object):
                                     print("WARNING: BLOOD OXYGEN IS HIGH", file=open('/home/rayah/Documents/health.txt', 'a'))
                             else:
                                 o2_high.clear()
+            if (time.time() > timeout):
+                break
 
-    def start_sensor(self):
-        self._thread = threading.Thread(target=self.run_sensor)
-        self._thread.stopped = False
-        self._thread.start()
-
-    def stop_sensor(self, timeout=2.0):
-        self._thread.stopped = True
-        self.bpm = 0
-        self._thread.join(timeout)
 
 #open("/home/rayah/Documents/health.txt", "w").close # Clearing the document
 
@@ -377,34 +369,30 @@ previous_val = {'x': 0, 'y': 0, 'z': 0}
 
 
 while True:
-    hrm.start_sensor()
-    sleep(15)
-    hrm.stop_sensor()
+    hrm.run_sensor()
     m = compass.get_bearing()
     if (0 < m < 90):
         oled.draw.text((0, 0), "north", fill=255)
         oled.show()
-        sleep(3)
+        sleep(1)
         oled.draw.rectangle( [(0,0), (128, 32)], fill=0)
         
     elif (90 < m < 180):
         oled.draw.text((0, 0), "east", fill=255)
         oled.show()
-        sleep(3)
+        sleep(1)
         oled.draw.rectangle([(0,0), (128, 32)], fill=0)
 
     elif (180 < m < 270):
         oled.draw.text((0, 0), "south", fill=255)
         oled.show()
-        sleep(3)
+        sleep(1)
         oled.draw.rectangle( [(0,0), (128, 32)], fill=0)
-        #print("south", file=open('/home/rayah/Documents/health.txt', 'a'))
-        #sleep(3)
 
     elif (270 < m < 360):
         oled.draw.text((0, 0), "west", fill=255)
         oled.show()
-        sleep(3)
+        sleep(1)
         oled.draw.rectangle( [(0,0), (128, 32)], fill=0)
     
     current_val = accelerometer.get_accel_data()
