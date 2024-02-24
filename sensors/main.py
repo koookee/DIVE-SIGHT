@@ -9,6 +9,10 @@ import argparse
 import qmc5883
 from mpu6050 import mpu6050
 from max30102 import MAX30102
+from PIL import Image, ImageDraw, ImageFont, ImageOps
+from time import sleep
+import textwrap
+from SSD1306 import SSD1306_128_32 as SSD1306
 
 # 25 samples per second
 SAMPLE_FREQ = 25
@@ -18,6 +22,27 @@ MA_SIZE = 4
 # sampling frequency * 4 (in algorithm.h)
 BUFFER_SIZE = 100
 
+class Display:
+
+    def __init__(self):
+        self.display = SSD1306(1)
+        self.clear()
+        self.width = self.display.width
+        self.height = self.display.height
+        self.image = Image.new("1", (self.width, self.height))
+        self.draw = ImageDraw.Draw(self.image)
+        self.rotate = False
+
+    def clear(self):
+        self.display.begin()
+        self.display.clear()
+        self.display.display()
+
+    def show(self):
+        self.display.image(self.image)
+        self.display.display()
+        
+        
 def calc_hr_and_spo2(ir_data, red_data):
     """
     By detecting  peaks of PPG cycle and corresponding AC/DC
@@ -205,8 +230,6 @@ class HeartRateMonitor(object):
     A class that encapsulates the max30102 device into a thread
     """
 
-    LOOP_TIME = 1
-
     def __init__(self, print_raw=False, print_result=False):
         self.bpm = 0
         if print_raw is True:
@@ -224,9 +247,10 @@ class HeartRateMonitor(object):
         bpm_low = []
         o2_high = []
         o2_low = []
-
-        # Run until told to stop.
-        while not self._thread.stopped:
+        
+        timeout = time.time() + 15
+        # Run until told to stop
+        while True:
             num_bytes = sensor.get_data_present()
             if num_bytes > 0:
                 # Put all data into arrays.
@@ -236,8 +260,11 @@ class HeartRateMonitor(object):
                     ir_data.append(ir)
                     red_data.append(red)
                     if self.print_raw:
-                        print("{0}, {1}".format(ir, red), file=open('/home/rayah/Documents/health.txt', 'a'))
-
+                        oled.draw.text((0, 0), "{0}, {1}".format(ir, red), fill=255)
+                        oled.show()
+                        sleep(3)
+                        oled.draw.rectangle( [(0,0), (128, 32)], fill=0)
+                        
                 while len(ir_data) > 100:
                     ir_data.pop(0)
                     red_data.pop(0)
@@ -253,13 +280,19 @@ class HeartRateMonitor(object):
                         if (np.mean(ir_data) < 50000 and np.mean(red_data) < 50000):
                             self.bpm = 0
                             if self.print_result:
-                                print("Person not detected at {0}".format(datetime.now().strftime("%H:%M:%S")), file=open('/home/rayah/Documents/health.txt', 'a'))
+                                oled.draw.text((0, 0),"Person not detected", fill=255)
+                                oled.show()
+                                sleep(3)
+                                oled.draw.rectangle( [(0,0), (128, 32)], fill=0)
                         elif self.print_result:
-                            
-                            print("Low BPM: {0}, High BPM: {1}, Low O2: {2}, High O2: {3}\nBPM: {4}, SpO2: {5}, Time: {6}, ".format(bpm_low, bpm_high, o2_low,
-                            o2_high, round(self.bpm, 2),round(spo2, 2), datetime.now().strftime("%H:%M:%S")),
+                            oled.draw.text((0, 0),"BPM: {0} SpO2: {1}".format(round(self.bpm, 2),round(spo2, 2)), fill=255)
+                            oled.show()
+                            oled.draw.rectangle( [(0,0), (128, 32)], fill=0)
+                            print("Low BPM: {0}, High BPM: {1}, Low O2: {2}, High O2: {3}\nTime: {4}, ".format(bpm_low, bpm_high, o2_low,
+                            o2_high, datetime.now().strftime("%H:%M:%S")),
                             file=open('/home/rayah/Documents/health.txt', 'a'))
                             
+                            #THE FOLLOWING IF STATEMENTS TRIGGER SOS WARNINGS
                             #Checking if the heart rate is too low
                             if(40 > self.bpm):
                                 bpm_low.append(self.bpm)
@@ -300,22 +333,11 @@ class HeartRateMonitor(object):
                                     print("WARNING: BLOOD OXYGEN IS HIGH", file=open('/home/rayah/Documents/health.txt', 'a'))
                             else:
                                 o2_high.clear()
-                            
-            time.sleep(self.LOOP_TIME)
+            if (time.time() > timeout):
+                break
 
-        #sensor.shutdown()
 
-    def start_sensor(self):
-        self._thread = threading.Thread(target=self.run_sensor)
-        self._thread.stopped = False
-        self._thread.start()
-
-    def stop_sensor(self, timeout=2.0):
-        self._thread.stopped = True
-        self.bpm = 0
-        self._thread.join(timeout)
-
-open("/home/rayah/Documents/health.txt", "w").close
+#open("/home/rayah/Documents/health.txt", "w").close # Clearing the document
 
 parser = argparse.ArgumentParser(description="Read and print data from MAX30102")
 parser.add_argument("-r", "--raw", action="store_true",
@@ -327,38 +349,61 @@ args = parser.parse_args()
 compass = qmc5883.QMC5883L()
 accelerometer = mpu6050(0x68)
 
-print('sensors starting...', file=open('/home/rayah/Documents/health.txt', 'a'))
+oled = Display()
+
+oled.draw.text((0, 0), "Welcome to DIVE-SIGHT", fill=255)
+oled.show()
+sleep(3)
+oled.draw.rectangle( [(0,0), (128, 32)], fill=0)
+
+#print('sensors starting...', file=open('/home/rayah/Documents/health.txt', 'a'))
+oled.draw.text((0, 0), "sensors starting...", fill=255)
+oled.show()
+sleep(3)
+oled.draw.rectangle( [(0,0), (128, 32)], fill=0)
+
 hrm = HeartRateMonitor(print_raw=args.raw, print_result=(not args.raw))
-hrm.start_sensor()
+
+time_count=0
+previous_val = {'x': 0, 'y': 0, 'z': 0}
+
 
 while True:
+    hrm.run_sensor()
     m = compass.get_bearing()
     if (0 < m < 90):
-        print("north", file=open('/home/rayah/Documents/health.txt', 'a'))
-        sleep(3)
-
+        oled.draw.text((0, 0), "north", fill=255)
+        oled.show()
+        sleep(1)
+        oled.draw.rectangle( [(0,0), (128, 32)], fill=0)
+        
     elif (90 < m < 180):
-        print ("east", file=open('/home/rayah/Documents/health.txt', 'a'))
-        sleep(3)
+        oled.draw.text((0, 0), "east", fill=255)
+        oled.show()
+        sleep(1)
+        oled.draw.rectangle([(0,0), (128, 32)], fill=0)
 
     elif (180 < m < 270):
-        print("south", file=open('/home/rayah/Documents/health.txt', 'a'))
-        sleep(3)
+        oled.draw.text((0, 0), "south", fill=255)
+        oled.show()
+        sleep(1)
+        oled.draw.rectangle( [(0,0), (128, 32)], fill=0)
 
     elif (270 < m < 360):
-        print("west", file=open('/home/rayah/Documents/health.txt', 'a'))
-        sleep(3)
-        
-    accel_data = accelerometer.get_accel_data()
-
-    print("x: " + str(accel_data['x']), file=open('/home/rayah/Documents/health.txt', 'a'))
-    print("y: " + str(accel_data['y']), file=open('/home/rayah/Documents/health.txt', 'a'))
-    print("z: " + str(accel_data['z']), file=open('/home/rayah/Documents/health.txt', 'a'))
+        oled.draw.text((0, 0), "west", fill=255)
+        oled.show()
+        sleep(1)
+        oled.draw.rectangle( [(0,0), (128, 32)], fill=0)
     
-try:
-    time.sleep(args.time)
-except KeyboardInterrupt:
-    print('keyboard interrupt detected, exiting...', file=open('/home/rayah/Documents/health.txt', 'a'))
-
-#hrm.stop_sensor()
-#print('sensor stopped!', file=open('/home/rayah/Documents/1/health.txt', 'a'))
+    current_val = accelerometer.get_accel_data()
+    if (((abs(current_val['x'] - previous_val['x'])) < 5 ) and ((abs(current_val['y'] - previous_val['y'])) < 5 ) and ((abs(current_val['z'] - previous_val['z'])) < 5 )):
+        time_count += 1
+    else:
+        time_count = 0
+            
+    if (15 > time_count >= 10):
+        print("wake-up")
+    elif (time_count >= 15):
+        print("SOS")
+            
+    previous_val = current_val
