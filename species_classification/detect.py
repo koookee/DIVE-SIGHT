@@ -1,5 +1,7 @@
 import tensorflow as tf
 import os
+import numpy as np
+from scipy.interpolate import make_interp_spline
 import matplotlib.pyplot as plt
 import cv2
 import time
@@ -11,16 +13,21 @@ if not 'model_evaluation':
 # Pre-trained model obtained from https://github.com/JeremyFJ/Shark-Detector
 model = tf.saved_model.load('SL_modelv3')
 
-SHARK_IMG_DIR = './test_images/shark_images/' # For model evaluation
-NONSHARK_IMG_DIR = './test_images/nonshark_images/' # For model evaluation
-
 CAPTURED_IMAGES = './captured_images/' # Captured images from the Raspberry Pi camera
 
 threshold = 0.9 # threshold to determine whether image contains a shark or not -- adjust this based on sensitivity
 
-eval_threshold = 0 # For evaluating the model with different threshold values
-
+# For model evaluation -------------------------------------------------------------
+SHARK_IMG_DIR = './test_images/shark_images/'
+NONSHARK_IMG_DIR = './test_images/nonshark_images/'
+eval_threshold = 0
+true_positive_rates = []
+false_positive_rates = []
+precision_rates = []
+recall_rates = []
 true_positives, false_negatives, false_positives, true_negatives = 0, 0, 0, 0
+# ----------------------------------------------------------------------------------
+
 
 def analyze_image(image_np, threshold):
   input_tensor=tf.convert_to_tensor(image_np)
@@ -66,8 +73,10 @@ def analyze_captured_input():
         time.sleep(5)
 
 def plot_roc():
-    global eval_threshold, true_positives, false_negatives, false_positives, true_negatives
+    global eval_threshold, true_positives, false_negatives, false_positives, true_negatives, true_positive_rates, false_positive_rates, precision_rates, recall_rates
+    
     threshold_lst = [x/10 for x in range(0, 11)]
+    threshold_lst = threshold_lst[::-1] # Reverse array so we could start with the highest threshold as the first element
     for i in threshold_lst:
         true_positives, false_negatives, false_positives, true_negatives = 0, 0, 0, 0
         eval_threshold = i
@@ -76,7 +85,28 @@ def plot_roc():
         print(f"TP: {true_positives}      |     FN: {false_negatives}")
         print(f"FP: {false_positives}      |     TN: {true_negatives}")
         print(f"Threshold: {eval_threshold}")
+        true_positive_rates.append(true_positives / (true_positives + false_negatives))
+        false_positive_rates.append(false_positives / (false_positives + true_negatives))
+
+        try: 
+            precision_rates.append(true_positives / (true_positives + false_positives)) # May evaluate to a division by 0 for some threshold values
+        except:
+            precision_rates.append(0)
+        recall_rates.append(true_positives / (true_positives + false_negatives))
         print("--------------------------------------------------------------")
+    true_positive_rates = np.array(true_positive_rates)
+    false_positive_rates = np.array(false_positive_rates)
+    precision_rates = np.array(precision_rates)
+    recall_rates = np.array(recall_rates)
+    X_Y_Spline = make_interp_spline(false_positive_rates, true_positive_rates)
+    false_positive_rates_ = np.linspace(false_positive_rates.min(), false_positive_rates.max(), 500)
+    true_positive_rates_ = X_Y_Spline(false_positive_rates_)
+    plt.plot(false_positive_rates_, true_positive_rates_)
+    plt.show()
+    print(true_positive_rates)
+    print(false_positive_rates)
+    print(precision_rates)
+    print(recall_rates)
 
 if 'model_evaluation' in sys.argv: 
     plot_roc()
