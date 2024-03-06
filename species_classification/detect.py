@@ -87,23 +87,11 @@ def plot_roc():
         print(f"Threshold: {eval_threshold}")
         true_positive_rates.append(true_positives / (true_positives + false_negatives))
         false_positive_rates.append(false_positives / (false_positives + true_negatives))
-
-        try: 
-            precision_rates.append(true_positives / (true_positives + false_positives)) # May evaluate to a division by 0 for some threshold values
-        except:
-            precision_rates.append(0)
-        recall_rates.append(true_positives / (true_positives + false_negatives))
         print("--------------------------------------------------------------")
     true_positive_rates = np.array(true_positive_rates)
     false_positive_rates = np.array(false_positive_rates)
-    precision_rates = np.array(precision_rates)
-    recall_rates = np.array(recall_rates)
     plt.plot(false_positive_rates, true_positive_rates)
     plt.show()
-    print(true_positive_rates)
-    print(false_positive_rates)
-    print(precision_rates)
-    print(recall_rates)
 
 if 'model_evaluation' in sys.argv: 
     plot_roc()
