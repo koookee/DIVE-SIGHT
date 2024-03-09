@@ -1,16 +1,30 @@
+'''
+Provides functions that allow two Raspberry Pi devices to communicate through the serial port
+'''
+
 import serial
 import time
 import sys
 
-ser = serial.Serial('/dev/ttyS0',9600)
+BAUD_RATE = 9600
 
-if len(sys.argv) < 2:
-    print("Must specifiy in argument to script whether to send or receive data")
-
-if len(sys.argv) > 1 and sys.argv[1] == "send":
-    msg = "Hello\n"
-    ser.write(msg.encode())
-elif len(sys.argv) > 1 and sys.argv[1] == "receive":
+ser = serial.Serial('/dev/ttyS0', BAUD_RATE)
+    
+def receive_msg():
+    """
+    Reads a message from the serial port and prints it to the console.
+    """
     msg = ser.readline()
     print(msg)
     
+def send_msg(msg):
+    """
+    Sends a message via the serial port.
+
+    Args:
+        msg (str): The message to send.
+
+    Returns:
+        None
+    """
+    ser.write(msg.encode())
