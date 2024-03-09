@@ -1,4 +1,5 @@
 venv/
 species_classification/captured_images/*
+species_classification/test_images/*
 !species_classification/captured_images/.gitkeep
 __pycache__

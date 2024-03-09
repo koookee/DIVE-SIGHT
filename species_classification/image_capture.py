@@ -1,3 +1,7 @@
+'''
+Contains the functions for seting up the Raspberry Pi camera module and taking pictures
+'''
+
 from picamera2 import Picamera2, Preview
 import time
 import sys
@@ -5,6 +9,9 @@ import sys
 picam2 = Picamera2()
 
 def setup():
+    '''
+    Setup and configure the Raspberry Pi camera module
+    '''
     camera_config = picam2.create_preview_configuration()
     picam2.configure(camera_config)
     picam2.options["quality"] = 95 # Sets the image quality to the highest value
@@ -17,6 +24,9 @@ if 'enable_preview' in sys.argv:
     picam2.start_preview(Preview.QTGL)
 
 def take_picture():
+    '''
+    Take a picture with the camera moule and save the image to a folder
+    '''
     epoch_time = int(time.time())
     picam2.capture_file(f"captured_images/image{epoch_time}.jpg")
     print(f"Captured image {epoch_time}")

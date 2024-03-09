@@ -1,50 +1,40 @@
+'''
+Loads in the model and starts capturing images from the Raspberry Pi camera module. 
+The captured images are passed to the model and a confidence score is generated 
+as to whether a shark was detected in the image or not. If a shark was detected,
+the Pi communicates with the other Pi via serial communication to display a warning
+'''
+
 import tensorflow as tf
 import os
+import numpy as np
+from scipy.interpolate import make_interp_spline
 import matplotlib.pyplot as plt
 import cv2
 import time
+import sys
 from image_capture import setup, take_picture, picam2
+from load_model import model, analyze_image
 
-# Pre-trained model obtained from https://github.com/JeremyFJ/Shark-Detector
-model = tf.saved_model.load('SL_modelv3')
+threshold = 0.9 # threshold to determine whether image contains a shark or not -- adjust this based on sensitivity
+CAPTURED_IMAGES = './captured_images/' # Captured images from the Raspberry Pi camera
 
-DATADIR = './test_images/'
-CAPTURED_IMAGES = './captured_images/'
+def capture_and_predict():
+    """
+    Uses the Raspberry Pi cmaera module to capture an image then 
+    checks whether the image contains a shark or not based on whether 
+    the confidence score is greater than the threshold
 
-def analyze_image(image_np, threshold):
-  input_tensor=tf.convert_to_tensor(image_np)
-  input_tensor=input_tensor[tf.newaxis, ...]
-  detections=model(input_tensor)
-  num_detections=int(detections.pop('num_detections'))
-  detections={key:value[0,:num_detections].numpy()
-          for key,value in detections.items()}
-  scores = detections['detection_scores']
-  confidence = scores[0]
-  
-  print(f"Confidence score that it's a shark: {confidence}")
-  return confidence
+    Args:
+        None
 
-def analyze_test_images():
-    for img in os.listdir(DATADIR): # iterate through each image in DATADIR
-        # time.sleep(3)
-        img_name = img.split(".")[0]
-        img = cv2.imread(DATADIR + img)
-        threshold = 0.9 # threshold to determine whether image contains a shark or not -- adjust this based on sensitivity
-        confidence = analyze_image(img, threshold)
-        if confidence > threshold:
-            print(f"{img_name} is a shark")
-        else:
-            print(f"{img_name} is not a shark")
-        print("-----------------------------------------")
-        plt.imshow(img)
-        plt.show()
-
-def analyze_captured_input():
+    Returns:
+        None
+    """
     for i in range(0, 10):
         image_name = take_picture()
         img = cv2.imread(CAPTURED_IMAGES + image_name)
-        threshold = 0.9 # threshold to determine whether image contains a shark or not -- adjust this based on sensitivity
-        confidence = analyze_image(img, threshold)
+        confidence = analyze_image(img)
         if confidence > threshold:
             print(f"{image_name} is a shark")
         else:
@@ -53,4 +43,4 @@ def analyze_captured_input():
         time.sleep(5)
 
 setup()
-analyze_captured_input()
+capture_and_predict()
