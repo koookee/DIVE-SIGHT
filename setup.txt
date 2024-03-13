@@ -7,6 +7,8 @@ Run the following commands to setup the dependencies for the repo
 >>> sudo apt-get install python3-venv -y
 >>> sudo apt install python3-picamera2 -y
 >>> sudo apt install python3-pyqt5 python3-opengl -y
+>>> sudo apt-get install python3-pyaudio 
+>>> sudo apt-get install libopenblas-dev
 
 Create a virtual environment 
 >>> python3 -m venv venv --system-site-packages
