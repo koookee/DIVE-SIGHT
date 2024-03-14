@@ -1,0 +1,30 @@
+import wave
+import math
+
+def calculate_intensity_db(intensity):
+    if intensity <= 0:
+        return float('-inf')  # Negative infinity for invalid intensity values
+    else:
+        return 10 * math.log10(intensity)
+
+def calculate_intensity(signal):
+    squared_values = [x ** 2 for x in signal]
+    mean_squared_value = sum(squared_values) / len(squared_values)
+    return mean_squared_value
+
+def read_wav_file(filename):
+    with wave.open(filename, 'rb') as wav_file:
+        # Get audio data
+        frames = wav_file.readframes(-1)
+        signal = list(wave.struct.unpack('h'*wav_file.getnframes(), frames))
+        return signal, wav_file.getframerate()
+
+def main():
+    filename = 'sos.wav'  # Replace 'your_wav_file.wav' with the path to your WAV file
+    signal, framerate = read_wav_file(filename)
+    intensity = calculate_intensity(signal)
+    intensity_db = calculate_intensity_db(intensity)
+    print("Sound intensity in dB:", intensity_db)
+
+if __name__ == "__main__":
+    main()
