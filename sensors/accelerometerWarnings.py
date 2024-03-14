@@ -8,7 +8,6 @@ pval_x = 0
 pval_y = 0
 pval_z = 0
 
-display_warning = False
 send_sos = False
 
 start_time = time.time()
@@ -23,13 +22,9 @@ while True:
     if (((abs(val_x - pval_x)) < 5 ) and ((abs(val_y - pval_y)) < 5 ) and ((abs(val_z - pval_z)) < 5 )):
         if (abs(start_time - time.time()) > 30):
             send_sos = True
-            display_warning = False
-        elif (abs(start_time - time.time()) > 15):
-            display_warning = True
     else:
         start_time = time.time()
         send_sos = False
-        display_warning = False
             
     pval_x = val_x
     pval_y = val_y

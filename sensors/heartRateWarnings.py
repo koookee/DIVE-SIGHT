@@ -12,7 +12,6 @@ args = parser.parse_args()
 
 hrm = HeartRateMonitor(print_raw=args.raw, print_result=(not args.raw))
 
-display_warning = False
 send_sos = False
 
 start_time = time.time()
@@ -23,18 +22,13 @@ while True:
     if ((heart_rate > 120) or (heart_rate < 40)):
         if (abs(start_time - time.time()) > 30):
             send_sos = True
-            display_warning = False
-        elif (abs(start_time - time.time()) > 15):
-            display_warning = True
     else:
         start_time = time.time()
         send_sos = False
-        display_warning = False
     
     '''
     # checking outputs
     print(f"Heart Rate: {heart_rate}")
     print(abs(start_time - time.time()))
-    print(f"warning: {display_warning}")
     print(f"sos: {send_sos}\n")
     '''
