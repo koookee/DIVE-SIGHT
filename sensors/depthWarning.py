@@ -18,7 +18,7 @@ while True:
     sleep(5)
     
     rate_of_change = ((depth - convert_to_depth(bmp.get_pressure())) / (time.time() - start_depth_time))
-    if (rate_of_change > (0.3)):
+    if (rate_of_change > 0.3):
         if (abs(start_time - time.time()) > 30):
             send_sos = True
 
