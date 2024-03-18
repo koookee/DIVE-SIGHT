@@ -7,10 +7,12 @@ from max30102 import HeartRateMonitor
 import qmc5883
 import argparse
 from gpiozero import Button, LED
+from threading import Thread
 
-class Display:
-
+class DisplayThread(Thread):
     def __init__(self):
+        Thread.__init__(self)
+        self.daemon = True
         self.display = SSD1306(1)
         self.clear()
         self.width = self.display.width
@@ -18,6 +20,9 @@ class Display:
         self.image = Image.new("1", (self.width, self.height))
         self.draw = ImageDraw.Draw(self.image)
         self.rotate = False
+        
+    def run(self):
+        ...
 
     def clear(self):
         self.display.begin()
@@ -77,7 +82,7 @@ while True:
     count = 0
     val = 0
     while (count < 30):
-        val += compass.get_bearing()
+        val += compass.75x()
         count += 1
 
     val = val / 30

@@ -13,21 +13,21 @@ heart_rate.start()
 oxygen_levels.start()
 
 while True:
-
-    # Pseudocode ...
-    # warningArr = []
-    # if getOxWarning:
-    #     warningArr.append(o2WarningMsg)
-    # if getHeartWarning:
-    #     warningArr.append(heartWarningMsg)
-    # if getAccWarning:
-    #     warningArr.append(accWarningMsg)
+    warnings = []
+    if accelerometer.send_sos:
+        warnings.append("falling unconscious")
+    if heart_rate.send_sos:
+        warnings.append("irregular heart rate")
+    if oxygen_levels.send_sos:
+        warnings.append("irregular oxygen levels")
+    
     # if getSharkWarning
-    #     warningArr.append(sharkWarningMsg)
+    #     warnings.append(sharkWarningMsg)
 
-    # numOfWarnings = len(warningArr)
+    warnings_str = ", ".join(warnings)
 
-    # if numOfWarnings > 0:
-    #     lcdDisplay.print(f"{numOfWarnings} warning(s): {warningArr}")
+    if len(warnings) > 0:
+        print(f"{len(warnings)} warning(s): {warnings_str}")
+        # lcdDisplay.print(f"{len(warnings)} warning(s): {warningArr}")
     # else:
     #     lcdDisplay.print(sensor data)
