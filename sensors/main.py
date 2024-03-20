@@ -3,7 +3,33 @@ from threading import Thread
 from Accelerometer import AccelerometerThread
 from HeartRate import HeartRateThread
 from OxygenLevels import OxygenThread
+from ssd1306 import SSD1306_128_32 as SSD1306
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 
+
+class Display():
+    def __init__(self):
+        self.display = SSD1306(1)
+        self.clear()
+        self.width = self.display.width
+        self.height = self.display.height
+        self.image = Image.new("1", (self.width, self.height))
+        self.draw = ImageDraw.Draw(self.image)
+        self.rotate = False
+        
+    def run(self):
+        ...
+
+    def clear(self):
+        self.display.begin()
+        self.display.clear()
+        self.display.display()
+
+    def show(self):
+        self.display.image(self.image)
+        self.display.display()
+
+oled = Display()
 accelerometer = AccelerometerThread()
 heart_rate = HeartRateThread()
 oxygen_levels = OxygenThread()
@@ -29,9 +55,16 @@ while True:
 
     if len(warnings) > 0:
         print(f"{len(warnings)} warning(s): {warnings_str}")
-        # lcdDisplay.print(f"{len(warnings)} warning(s): {warningArr}")
+        oled.draw.text((0, 0), f"{len(warnings)} warning(s): ...", fill=255)
+        oled.show()
+        oled.draw.rectangle( [(0,0), (128, 32)], fill=0)
     else:
         print(f"Heart Rate: {heart_rate.heart_rate}")
         print(f"Oxygen Levels: {oxygen_levels.o2}")
         print(f"Accelerometer Readings: {accelerometer.val_x}, {accelerometer.val_y}, {accelerometer.val_z}")
+        oled.draw.text((0, 0), f"Heart Rate: {heart_rate.heart_rate}", fill=255)
+        oled.draw.text((0, 11), f"Oxygen Levels: {oxygen_levels.o2}", fill=255)
+        oled.draw.text((0, 22), f"Acc: {accelerometer.val_x:.1f}, {accelerometer.val_y:.1f}, {accelerometer.val_z:.1f}", fill=255)
+        oled.show()
+        oled.draw.rectangle( [(0,0), (128, 32)], fill=0)
     #     lcdDisplay.print(sensor data)
