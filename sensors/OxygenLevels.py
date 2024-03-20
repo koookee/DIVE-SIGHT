@@ -11,6 +11,7 @@ class OxygenThread(Thread):
         self.hrm = HeartRateMonitor(False, True)
         self.send_sos = False
         self.start_time = time.time()
+        self.o2 = 0
         
     def run(self):
         while True:

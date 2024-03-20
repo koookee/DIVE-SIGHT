@@ -11,6 +11,7 @@ class HeartRateThread(Thread):
         self.hrm = HeartRateMonitor(False, True)
         self.send_sos = False
         self.start_time = time.time()
+        self.heart_rate = 0
         
     def run(self):
         while True:

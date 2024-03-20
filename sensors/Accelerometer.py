@@ -13,10 +13,13 @@ class AccelerometerThread(Thread):
         self.pval_z = 0
         self.send_sos = False
         self.start_time = time.time()
+        self.val_x = 0
+        self.val_y = 0
+        self.val_z = 0
 
     def run(self):
         while True:
-            m = accelerometer.get_accel_data()
+            m = self.accelerometer.get_accel_data()
             
             self.val_x = m['x']
             self.val_y = m['y']

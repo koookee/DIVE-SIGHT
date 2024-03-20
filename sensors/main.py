@@ -13,6 +13,7 @@ heart_rate.start()
 oxygen_levels.start()
 
 while True:
+    time.sleep(1)
     warnings = []
     if accelerometer.send_sos:
         warnings.append("falling unconscious")
