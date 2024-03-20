@@ -50,7 +50,7 @@ while True:
         warnings.append("irregular heart rate")
     if oxygen_levels.send_sos:
         warnings.append("irregular oxygen levels")
-    if marine_life.warning
+    if marine_life.warning:
         warnings.append("shark detected")
 
     warnings_str = ", ".join(warnings)
