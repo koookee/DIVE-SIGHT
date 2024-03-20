@@ -3,6 +3,7 @@ from threading import Thread
 from Accelerometer import AccelerometerThread
 from HeartRate import HeartRateThread
 from OxygenLevels import OxygenThread
+from MarineLife import MarineLifeThread
 from ssd1306 import SSD1306_128_32 as SSD1306
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
@@ -33,10 +34,12 @@ oled = Display()
 accelerometer = AccelerometerThread()
 heart_rate = HeartRateThread()
 oxygen_levels = OxygenThread()
+marine_life = MarineLifeThread()
 
 accelerometer.start()
 heart_rate.start()
 oxygen_levels.start()
+marine_life.start()
 
 while True:
     time.sleep(1)
@@ -47,9 +50,8 @@ while True:
         warnings.append("irregular heart rate")
     if oxygen_levels.send_sos:
         warnings.append("irregular oxygen levels")
-    
-    # if getSharkWarning
-    #     warnings.append(sharkWarningMsg)
+    if marine_life.warning
+        warnings.append("shark detected")
 
     warnings_str = ", ".join(warnings)
 

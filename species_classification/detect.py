@@ -15,9 +15,26 @@ import time
 import sys
 from image_capture import setup, take_picture, picam2
 from load_model import model, analyze_image
+import serial
+
+BAUD_RATE = 9600
+
+ser = serial.Serial('/dev/ttyS0', BAUD_RATE)
 
 threshold = 0.9 # threshold to determine whether image contains a shark or not -- adjust this based on sensitivity
 CAPTURED_IMAGES = './captured_images/' # Captured images from the Raspberry Pi camera
+
+def send_msg(msg):
+    """
+    Sends a message via the serial port.
+
+    Args:
+        msg (str): The message to send.
+
+    Returns:
+        None
+    """
+    ser.write(msg.encode())
 
 def capture_and_predict():
     """
@@ -37,8 +54,10 @@ def capture_and_predict():
         confidence = analyze_image(img)
         if confidence > threshold:
             print(f"{image_name} is a shark")
+            send_msg("shark")
         else:
             print(f"{image_name} is not a shark")
+            send_msg("")
         print("-----------------------------------------")
         time.sleep(5)
 
