@@ -4,6 +4,7 @@ import textwrap
 from ssd1306 import SSD1306_128_32 as SSD1306
 from mpu6050 import mpu6050
 from max30102 import HeartRateMonitor
+from bmp280 import BMP280
 import qmc5883
 import argparse
 from gpiozero import Button, LED
@@ -48,10 +49,14 @@ def degrees_to_cardinal(degrees, declination):
     oled.draw.text((96, 0), f"{cardinal_direction}", fill=255)
     oled.draw.text((64, 11), f"{remaining_degrees:.2f} deg", fill=255)
     oled.show()
- 
+
+def convert_to_depth(p):
+    return ((10 * (p * 0.000987)) - 10)
+
 oled = Display()
 compass = qmc5883.QMC5883L()
 accelerometer = mpu6050(0x68)
+bmp = BMP280()
 flashlight_button = Button(17)
 flashlight = LED(27)
 
@@ -120,6 +125,14 @@ while True:
     oled.show()
     
     oled.draw.text((0, 22), f"O2: {o2}", fill=255)
+    oled.show()
+    
+    depth = convert_to_depth(bmp.get_pressure())
+    
+    oled.draw.text((85, 0), "Depth:", fill=255)
+    oled.show()
+    
+    oled.draw.text((85, 16), f"{round(depth, 2)} m", fill=255)
     oled.show()
     
     sleep(7)
