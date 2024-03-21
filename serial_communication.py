@@ -28,6 +28,7 @@ def send_msg(msg):
         None
     """
     ser.write(msg.encode())
+    ser.flush()
 
 if 'send' in sys.argv: 
     send_msg('Test')
