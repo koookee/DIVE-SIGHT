@@ -8,7 +8,7 @@ import sys
 
 BAUD_RATE = 9600
 
-ser = serial.Serial('/dev/ttyS0', BAUD_RATE)
+ser = serial.Serial('/dev/ttyS0', BAUD_RATE, timeout=1)
     
 def receive_msg():
     """
@@ -28,3 +28,8 @@ def send_msg(msg):
         None
     """
     ser.write(msg.encode())
+
+if 'send' in sys.argv: 
+    send_msg('Test')
+else: 
+    receive_msg()
