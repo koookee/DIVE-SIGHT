@@ -66,6 +66,8 @@ while True:
             oled.draw.text((0, row * 11), warnings_str, fill=255)
             row += 1
             print(warnings_str)
+        oled.show()
+        oled.draw.rectangle( [(0,0), (128, 32)], fill=0)
         
     else:
         print(f"Heart Rate: {heart_rate.heart_rate}")
