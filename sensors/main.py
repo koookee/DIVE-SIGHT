@@ -53,13 +53,20 @@ while True:
     if marine_life.warning:
         warnings.append("shark detected")
 
-    warnings_str = ", ".join(warnings)
-
     if len(warnings) > 0:
-        print(f"{len(warnings)} warning(s): {warnings_str}")
-        oled.draw.text((0, 0), f"{len(warnings)} warning(s): ...", fill=255)
-        oled.show()
-        oled.draw.rectangle( [(0,0), (128, 32)], fill=0)
+        warnings.insert(0, f"{len(warnings)} warning(s)")
+        row = 0
+        for idx in range(0,len(warnings),2):
+            warning1 = warnings[idx]
+            if idx+1 < len(warnings):
+                warning2 = warnings[idx+1]
+            else:
+                warning2 = ""
+            warnings_str = warning1 + " | " warning2
+            oled.draw.text((0, row * 11), warnings_str, fill=255)
+            row += 1
+            print(warnings_str)
+        
     else:
         print(f"Heart Rate: {heart_rate.heart_rate}")
         print(f"Oxygen Levels: {oxygen_levels.o2}")
@@ -69,4 +76,3 @@ while True:
         oled.draw.text((0, 22), f"Acc: {accelerometer.val_x:.1f}, {accelerometer.val_y:.1f}, {accelerometer.val_z:.1f}", fill=255)
         oled.show()
         oled.draw.rectangle( [(0,0), (128, 32)], fill=0)
-    #     lcdDisplay.print(sensor data)

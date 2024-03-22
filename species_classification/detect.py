@@ -19,7 +19,7 @@ import serial
 
 BAUD_RATE = 9600
 
-ser = serial.Serial('/dev/ttyS0', BAUD_RATE)
+ser = serial.Serial('/dev/ttyS0', BAUD_RATE, timeout=1)
 
 threshold = 0.9 # threshold to determine whether image contains a shark or not -- adjust this based on sensitivity
 CAPTURED_IMAGES = './captured_images/' # Captured images from the Raspberry Pi camera
@@ -48,7 +48,7 @@ def capture_and_predict():
     Returns:
         None
     """
-    for i in range(0, 10):
+    while True:
         image_name = take_picture()
         img = cv2.imread(CAPTURED_IMAGES + image_name)
         confidence = analyze_image(img)
@@ -59,7 +59,7 @@ def capture_and_predict():
             print(f"{image_name} is not a shark")
             send_msg("")
         print("-----------------------------------------")
-        time.sleep(5)
+        time.sleep(3)
 
 setup()
 capture_and_predict()
